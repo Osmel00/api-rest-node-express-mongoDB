@@ -39,20 +39,21 @@ function(accessToken, refreshToken, profile, done) {
 ));
 
 //******LOCAL_STRATEGY*************************************//
-passport.use(new LocalStrategy({
-  usernameField: 'email',
-  passwordField: 'passwd',
-  //session: false,
-  
-},
+passport.use(new LocalStrategy(
 
-  function(username, password, done) {
+  function(username, password,done) {
     // User.findOne({ email: email }, function (err, user) {
     //   if (err) { return done(err); }
     //   if (!user) { return done(null, false); }
     //   if (!user.verifyPassword(password)) { return done(null, false); }
     //   return done(null, user);
     // });
+
+    // {
+    //   usernameField: 'email',
+    //   passwordField: 'passwd',
+    //   //session: false,
+    // },
     
     if(username==='osmel@gmail.com' && password==='123'){
       user ={

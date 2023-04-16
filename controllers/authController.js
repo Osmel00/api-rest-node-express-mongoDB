@@ -1,6 +1,19 @@
 const { validationResult } = require("express-validator");
-
-const loginValidation = (req, res, next) => {
+const User = require("../models/User")
+const { v4: uuidv4 } = require('uuid')
+const isRegisteredSuccess = async (req, res, next) => {
+    const {username:email, password,name} = req.body;
+    
+    try {
+      const user = new User({_id:uuidv4(),email, password,name})
+      await user.save()
+      ///*** send the jwt token
+      next();
+    } catch (error) {
+      console.log(error);
+    } 
+}
+const loginRegisterValidation = (req, res, next) => {
  const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ Errors: errors.array()});
@@ -35,4 +48,4 @@ const loginFailure = (req, res) => {
   });
 };
 
-module.exports = { loginSuccess, logout, loginFailure, loginValidation };
+module.exports = { loginSuccess, logout, loginFailure, loginRegisterValidation,isRegisteredSuccess };

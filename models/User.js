@@ -1,13 +1,11 @@
 const mongoose = require("mongoose");
 const { model, Schema } = mongoose;
-
+const bcrypt = require('bcryptjs');
 const userSchema = new Schema(
   {
     _id: {
       type: "String",
-      require: true,
-      unique: true,
-    },
+     },
     email: {
       type: "String",
       require: true,
@@ -33,4 +31,17 @@ const userSchema = new Schema(
     versionKey: false,
   }
 );
-module.exports = model('user',userSchema);
+userSchema.pre('save', function(next){
+  const user = this;
+  if (!user.isModified('password')) return next();
+
+  try {
+    const salt =  bcrypt.genSaltSync(10)
+    user.password =  bcrypt.hashSync(user.password, salt);
+    next();
+  } catch (error) {
+    console.log(error);
+    throw new Error('Hash password failed: ' + error.message);
+  }
+})
+module.exports = model('User',userSchema);

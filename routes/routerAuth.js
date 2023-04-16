@@ -55,10 +55,13 @@ routers.get(
 
 //******LOCAL_STRATEGY*************************************//
 routers.post(
-  "/login", [
-    body("email", "A valid email is required").isEmail(),
-    body("passwd", "password required").notEmpty()
-  ],authController.loginValidation,
+  "/login",
+  [
+    body("email", "A valid email is required").trim().isEmail(),
+    body("passwd", "password required").trim().notEmpty(),
+
+  ],
+  authController.loginRegisterValidation,
   passport.authenticate("local", { failureRedirect: "/login/failure" }),
   function (req, res) {
     //res.redirect(process.env.CLIENT_API);
@@ -69,9 +72,16 @@ routers.post(
 
 routers.post(
   "/register",
+  [
+    body("username", "A valid email is required").trim().isEmail(),
+    body("password", "password required").trim().notEmpty(),
+    body("name", "name required").trim().notEmpty(),
+  ],
+  authController.loginRegisterValidation,authController.isRegisteredSuccess,
   passport.authenticate("local", { failureRedirect: "/login/failure" }),
   function (req, res) {
-    res.redirect(`${process.env.CLIENT_API}/register`);
+    console.log(req.user);
+    // res.redirect(`${process.env.CLIENT_API}/register`);
   }
 );
 

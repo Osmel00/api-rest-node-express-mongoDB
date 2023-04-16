@@ -29,7 +29,7 @@ app.use('/auth',authRoutes);
 
 //***************SERVER + MONGODB*********************************//
 const bootstrap = async () =>{
-  //await  mongoose.connect(process.env.MONGODB_URL)
+  await  mongoose.connect(process.env.MONGODB_URL)
   app.listen(PORT, () => {
     console.log(`Server connected on port ${PORT}`);
   });
