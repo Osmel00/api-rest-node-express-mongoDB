@@ -61,27 +61,31 @@ routers.post(
     body("passwd", "password required").trim().notEmpty(),
 
   ],
-  authController.loginRegisterValidation,
+  authController.loginRegisterValidation,authController.isLoginSuccess,
   passport.authenticate("local", { failureRedirect: "/login/failure" }),
   function (req, res) {
-    //res.redirect(process.env.CLIENT_API);
+    //res.redirect(`${process.env.CLIENT_API}/login`);
     console.log(req.user);
+    console.log(req.authInfo);
     //res.redirect("/results");
+    
+   return res.send(req.authInfo)
   }
 );
 
 routers.post(
   "/register",
   [
-    body("username", "A valid email is required").trim().isEmail(),
-    body("password", "password required").trim().notEmpty(),
+    body("email", "A valid email is required").trim().isEmail(),
+    body("passwd", "password required").trim().notEmpty(),
     body("name", "name required").trim().notEmpty(),
   ],
   authController.loginRegisterValidation,authController.isRegisteredSuccess,
   passport.authenticate("local", { failureRedirect: "/login/failure" }),
   function (req, res) {
-    console.log(req.user);
-    // res.redirect(`${process.env.CLIENT_API}/register`);
+    //console.log(req.user);
+     //res.redirect(`${process.env.CLIENT_API}/register`);
+     res.redirect("/")
   }
 );
 

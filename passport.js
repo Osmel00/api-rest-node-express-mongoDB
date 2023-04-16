@@ -1,75 +1,79 @@
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const GitHubStrategy = require('passport-github2').Strategy;
-const LocalStrategy = require('passport-local').Strategy;
-const dotenv = require('dotenv');
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const GitHubStrategy = require("passport-github2").Strategy;
+const LocalStrategy = require("passport-local").Strategy;
+const dotenv = require("dotenv");
+const User = require("./models/User");
+
 dotenv.config();
 
-      //******GOOGLE_STRATEGY****************************************//
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID ,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback",
-    scope: ["profile", "email"],
-  },
-  function(accessToken, refreshToken, profile, done) {
-    // User.findOrCreate({ googleId: profile.id }, function (err, user) {
-    //   return cb(err, user);
-    // });
-   
-   return done(null, profile);
-   
-  }
-));
+//******GOOGLE_STRATEGY****************************************//
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback",
+      scope: ["profile", "email"],
+    },
+    function (accessToken, refreshToken, profile, done) {
+      // User.findOrCreate({ googleId: profile.id }, function (err, user) {
+      //   return cb(err, user);
+      // });
 
-
+      return done(null, profile);
+    }
+  )
+);
 
 //******GITHUB_STRATEGY**********************************//
-passport.use(new GitHubStrategy({
-  clientID: process.env.GITHUB_CLIENT_ID,
-  clientSecret:process.env.GITHUB_CLIENT_SECRET,
-  callbackURL: "/auth/github/callback"
-},
-function(accessToken, refreshToken, profile, done) {
-  // User.findOrCreate({ githubId: profile.id }, function (err, user) {
-  //   return done(err, user);
-  // });
-  return done(null, profile);
-}
-));
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: "/auth/github/callback",
+    },
+    function (accessToken, refreshToken, profile, done) {
+      // User.findOrCreate({ githubId: profile.id }, function (err, user) {
+      //   return done(err, user);
+      // });
+      return done(null, profile);
+    }
+  )
+);
 
 //******LOCAL_STRATEGY*************************************//
-passport.use(new LocalStrategy(
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "passwd",
+      passReqToCallback: true, //*estos es para traer todo lo que viene del usuario en el body
 
-  function(username, password,done) {
-    // User.findOne({ email: email }, function (err, user) {
-    //   if (err) { return done(err); }
-    //   if (!user) { return done(null, false); }
-    //   if (!user.verifyPassword(password)) { return done(null, false); }
-    //   return done(null, user);
-    // });
+      //session: false,
+    },
 
-    // {
-    //   usernameField: 'email',
-    //   passwordField: 'passwd',
-    //   //session: false,
-    // },
-    
-    if(username==='osmel@gmail.com' && password==='123'){
-      user ={
-        username: username,
-        password: password,
+     function (req, email, passwd, done) {
+     
+      if (email && passwd) {
+        const user = {
+          email: email,
+          password: passwd,
+        };
+
+        //console.log(user);
+        return done(null, user);
       }
-      return done (null,user);
+
+      return done(null, false,{message: 'user not authenticated'});
     }
-    return done(null,false);
-  }
-));
+  )
+);
 
-
-passport.serializeUser(function(user,done) {
+passport.serializeUser(function (user, done) {
   return done(null, user);
-})
-passport.deserializeUser(function(user,done) {
- return  done(null, user);
-})
+});
+passport.deserializeUser(function (user, done) {
+  return done(null, user);
+});
