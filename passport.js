@@ -4,7 +4,7 @@ const GitHubStrategy = require("passport-github2").Strategy;
 const LocalStrategy = require("passport-local").Strategy;
 const dotenv = require("dotenv");
 const User = require("./models/User");
-
+const { v4: uuidv4 } = require("uuid");
 dotenv.config();
 
 //******GOOGLE_STRATEGY****************************************//
@@ -45,28 +45,28 @@ passport.use(
 
 //******LOCAL_STRATEGY*************************************//
 passport.use(
+  "signup",
   new LocalStrategy(
     {
       usernameField: "email",
-      passwordField: "passwd",
+      passwordField: "password",
       passReqToCallback: true, //*estos es para traer todo lo que viene del usuario en el body
-
-      //session: false,
+      session: false,
     },
 
-     function (req, email, passwd, done) {
-     
-      if (email && passwd) {
-        const user = {
-          email: email,
-          password: passwd,
-        };
+    async function (req, email, password, done) {
+      try {
+        let user = await User.findOne({ email }).exec();
+        if (user)
+          return done(null, false, { Error: "User already registered" });
 
-        //console.log(user);
+        const name = req.name;
+        user = new User({ _id: uuidv4(), email, password, name });
+        await user.save();
         return done(null, user);
+      } catch (error) {
+        done(error);
       }
-
-      return done(null, false,{message: 'user not authenticated'});
     }
   )
 );

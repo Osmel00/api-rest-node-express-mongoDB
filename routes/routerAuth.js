@@ -59,39 +59,45 @@ routers.post(
   [
     body("email", "A valid email is required").trim().isEmail(),
     body("passwd", "password required").trim().notEmpty(),
-
   ],
-  authController.loginRegisterValidation,authController.isLoginSuccess,
+  authController.loginRegisterValidation,
+  authController.isLoginSuccess,
   passport.authenticate("local", { failureRedirect: "/login/failure" }),
   function (req, res) {
     //res.redirect(`${process.env.CLIENT_API}/login`);
     console.log(req.user);
     console.log(req.authInfo);
     //res.redirect("/results");
-    
-   return res.send(req.authInfo)
+
+    return res.send(req.authInfo);
   }
 );
 
 routers.post(
-  "/register",
+  "/signup",
   [
     body("email", "A valid email is required").trim().isEmail(),
-    body("passwd", "password required").trim().notEmpty(),
+    body("password", "password required").trim().notEmpty(),
     body("name", "name required").trim().notEmpty(),
   ],
-  authController.loginRegisterValidation,authController.isRegisteredSuccess,
-  passport.authenticate("local", { failureRedirect: "/login/failure" }),
-  function (req, res) {
-    //console.log(req.user);
-     //res.redirect(`${process.env.CLIENT_API}/register`);
-     res.redirect("/")
+  authController.loginRegisterValidation,
+  (req, res, next) => {
+    passport.authenticate("signup", (err,user,info) => {
+      console.log(info);
+      if (err) throw err;
+      if(!user) return res.send(info);
+      else{
+      res.send({message:'Successfully Registered'})
+       
+      }
+    })(req, res, next);
   }
 );
 
 routers.get("/login", (req, res) => {
   console.log(req.user);
   res.send(req.user);
+  next();
 });
 
 routers.get("/login/failure", authController.loginFailure);
