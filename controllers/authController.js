@@ -80,3 +80,5 @@ module.exports = {
   isRegisteredSuccess,
   isLoginSuccess
 };
+
+//new
