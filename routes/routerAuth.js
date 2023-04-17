@@ -4,6 +4,7 @@ const routers = express.Router();
 const dotenv = require("dotenv");
 const { body } = require("express-validator");
 const authController = require("../controllers/authController");
+const jwt = require('jsonwebtoken');
 dotenv.config();
 
 //******GOOGLE_ROUTES****************************************//
@@ -58,18 +59,27 @@ routers.post(
   "/login",
   [
     body("email", "A valid email is required").trim().isEmail(),
-    body("passwd", "password required").trim().notEmpty(),
+    body("password", "password required").trim().notEmpty(),
   ],
   authController.loginRegisterValidation,
-  authController.isLoginSuccess,
-  passport.authenticate("local", { failureRedirect: "/login/failure" }),
-  function (req, res) {
-    //res.redirect(`${process.env.CLIENT_API}/login`);
-    console.log(req.user);
-    console.log(req.authInfo);
-    //res.redirect("/results");
+  (req, res, next) => {
+    passport.authenticate("login", (err, user, info) => {
+      if (err) next(err);
+      if (!user) return res.send(info);
+      else {
+        req.login(user, (err) => {
+          if (err) next(err);
+          console.log(user);
+          const body = {id:user._id,name:user.name}
+          console.log(body);
+          const token = jwt.sign(body,process.env.JWT_PRIVATE_KEY)// { expiresIn: '1h' } si quieres que expire
 
-    return res.send(req.authInfo);
+          return res.send({ message: "Successfully Authenticated " ,
+        token});
+          //aqui desencripto el token
+        });
+      }
+    })(req, res, next);
   }
 );
 
@@ -82,17 +92,25 @@ routers.post(
   ],
   authController.loginRegisterValidation,
   (req, res, next) => {
-    passport.authenticate("signup", (err,user,info) => {
+    passport.authenticate("signup", (err, user, info) => {
       console.log(info);
       if (err) throw err;
-      if(!user) return res.send(info);
-      else{
-      res.send({message:'Successfully Registered'})
-       
+      if (!user) return res.send(info);
+      else {
+        res.send({ message: "Successfully Registered" });
       }
     })(req, res, next);
   }
 );
+
+routers.get("/profile",passport.authenticate('jwt',{session:false}),(req, res, next) => {
+   res.json({
+     message:'You did it',
+    _id: req.body.id,
+    name:req.body.name,
+    token: req.query.secret_token,
+    })
+})
 
 routers.get("/login", (req, res) => {
   console.log(req.user);
