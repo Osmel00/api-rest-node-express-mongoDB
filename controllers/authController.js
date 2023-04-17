@@ -19,7 +19,7 @@ const isLoginSuccess = async (req, res, next) => {
         }
       next();
     } catch (error) {
-      return res.status(500).json({ Error: error });
+      return res.status(500).json({ Error: error })
   }
 }
 const isRegisteredSuccess = async (req, res, next) => {
