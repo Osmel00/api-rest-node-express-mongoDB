@@ -4,7 +4,7 @@ const routers = express.Router();
 const dotenv = require("dotenv");
 const { body } = require("express-validator");
 const authController = require("../controllers/authController");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 dotenv.config();
 
 //******GOOGLE_ROUTES****************************************//
@@ -24,20 +24,6 @@ routers.get(
   }
 );
 
-/*//  routers.get("/Logout", (req, res) => {
-//   req.logOut(function (err) {
-//     if (err) {
-//       return next(err);
-//     }
-//     req.session.destroy();
-
-//    //res.redirect('http://localhost:3000');
-
-//   });
-
-//   //req.session.sid= null;
-//   res.send('Goodbye');
-// });*/
 
 //******GITHUB_STRATEGY**********************************//
 routers.get(
@@ -69,14 +55,11 @@ routers.post(
       else {
         req.login(user, (err) => {
           if (err) next(err);
-          console.log(user);
-          const body = {id:user._id,name:user.name}
-          console.log(body);
-          const token = jwt.sign(body,process.env.JWT_PRIVATE_KEY)// { expiresIn: '1h' } si quieres que expire
 
-          return res.send({ message: "Successfully Authenticated " ,
-        token});
-          //aqui desencripto el token
+          const body = { id: user._id, name: user.name };
+          const token = jwt.sign({ user: body }, process.env.JWT_PRIVATE_KEY,{ expiresIn: '1h' }); // { expiresIn: '1h' } si quieres que expire
+          return res.send({ message: "Successfully Authenticated ", token });
+         
         });
       }
     })(req, res, next);
@@ -103,20 +86,20 @@ routers.post(
   }
 );
 
-routers.get("/profile",passport.authenticate('jwt',{session:false}),(req, res, next) => {
-   res.json({
-     message:'You did it',
-    _id: req.body.id,
-    name:req.body.name,
-    token: req.query.secret_token,
-    })
-})
+routers.get(
+  "/profile",
+  passport.authenticate("jwt", { session: false }),
+  (req, res, next) => {
+    res.json({
+      message: "You did it",
+      id: req.user.id,
+      name: req.user.name,
+      token: req.query.secret_token,
+    });
+  }
+);
 
-routers.get("/login", (req, res) => {
-  console.log(req.user);
-  res.send(req.user);
-  next();
-});
+
 
 routers.get("/login/failure", authController.loginFailure);
 

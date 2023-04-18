@@ -87,7 +87,7 @@ passport.use(
     async function (req, email, password, done) {
       try {
         let user = await User.findOne({ email }).exec();
-        log
+        
         if (!user)
           return done(null, false, { Error: "User is not registered" });
 
@@ -112,7 +112,7 @@ passport.use(
   "jwt",
   new JwtStrategy(opts, async function (token, done) {
     try {
-      return done(null, token.body);
+      return done(null, token.user);
     } catch (error) {
       done(error);
     }
