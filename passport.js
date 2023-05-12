@@ -3,7 +3,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const GitHubStrategy = require("passport-github2").Strategy;
 const LocalStrategy = require("passport-local").Strategy;
 const JwtStrategy = require("passport-jwt").Strategy;
-const ExtractJwt  = require("passport-jwt").ExtractJwt;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
 const dotenv = require("dotenv");
 const User = require("./models/User");
 const { v4: uuidv4 } = require("uuid");
@@ -16,15 +16,27 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL: "/api/v1/auth/google/callback",
       scope: ["profile", "email"],
     },
-    function (accessToken, refreshToken, profile, done) {
-      // User.findOrCreate({ googleId: profile.id }, function (err, user) {
-      //   return cb(err, user);
-      // });
-
-      return done(null, profile);
+   async function (accessToken, refreshToken, profile, done) {
+    const {id,displayName:name,emails,provider} = profile;
+      let user = await User.findOne({id} ).exec();
+     
+        if (!user) {
+          user = new User({ _id:id,email:emails[0].value, name,});
+          await user.save();
+        }
+      
+      return done(null, {
+        token: accessToken,
+        socialUser: {
+          id,
+          name,
+          email:emails[0].value,
+          provider,
+        },
+      });
     }
   )
 );
@@ -35,13 +47,17 @@ passport.use(
     {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: "/auth/github/callback",
+      callbackURL: "/api/v1/auth/github/callback",
     },
     function (accessToken, refreshToken, profile, done) {
       // User.findOrCreate({ githubId: profile.id }, function (err, user) {
       //   return done(err, user);
       // });
-      return done(null, profile);
+
+      return done(null, {
+        token: accessToken,
+        socialUser: { name: profile.username, provider: profile.provider },
+      });
     }
   )
 );
@@ -54,7 +70,7 @@ passport.use(
       usernameField: "email",
       passwordField: "password",
       passReqToCallback: true, //*estos es para traer todo lo que viene del usuario en el body
-      session: false,
+      //session: false,
     },
 
     async function (req, email, password, done) {
@@ -63,8 +79,8 @@ passport.use(
         if (user)
           return done(null, false, { Error: "User already registered" });
 
-        const name = req.name;
-        user = new User({ _id: uuidv4(), email, password, name });
+        const name = req.body.name;
+        user = new User({ _id: uuidv4(), email, name, password });
         await user.save();
         return done(null, user);
       } catch (error) {
@@ -80,22 +96,21 @@ passport.use(
     {
       usernameField: "email",
       passwordField: "password",
-      passReqToCallback: true, //*estos es para traer todo lo que viene del usuario en el body
-      session: false,
+      //passReqToCallback: true, //*estos es para traer todo lo que viene del usuario en el body
+      //session: true,
     },
 
-    async function (req, email, password, done) {
+    async function (email, password, done) {
       try {
         let user = await User.findOne({ email }).exec();
-        
-        if (!user)
-          return done(null, false, { Error: "User is not registered" });
+
+        if (!user) done(null, false, { Error: "User is not registered" });
 
         const responsePassword = await user.comparePassword(password);
         if (!responsePassword) {
-          return done(null, false, { Error: "Password is not valid" });
+          done(null, false, { Error: "Password is not valid" });
         }
-        return done(null, user);
+        done(null, user);
       } catch (error) {
         done(error);
       }
@@ -105,14 +120,20 @@ passport.use(
 
 //******JWT_TOKEN_STRATEGY*************************************//
 var opts = {};
-opts.jwtFromRequest = ExtractJwt.fromUrlQueryParameter('secret_token');
+//opts.jwtFromRequest = ExtractJwt.fromUrlQueryParameter('secret_token');
+opts.jwtFromRequest = ExtractJwt.fromBodyField("secretToken");
 opts.secretOrKey = process.env.JWT_PRIVATE_KEY;
+//opts.secretOrKey = process.env.JWT_PRIVATE_KEY;
 
 passport.use(
   "jwt",
   new JwtStrategy(opts, async function (token, done) {
     try {
-      return done(null, token.user);
+      const id = token.user.id;
+      let user = await User.findById(id).exec();
+      if (user)
+        return done(null, { id: user.id, name: user.name, email: user.email });
+      return done(null, false, { Error: "User Unauthorized" });
     } catch (error) {
       done(error);
     }
@@ -120,8 +141,8 @@ passport.use(
 );
 
 passport.serializeUser(function (user, done) {
-  return done(null, user);
+  done(null, user);
 });
 passport.deserializeUser(function (user, done) {
-  return done(null, user);
+  done(null, user);
 });

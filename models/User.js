@@ -20,11 +20,12 @@ const userSchema = new Schema(
     },
     password: {
       type: "String",
-      require: true,
+     
     },
     imageUrl: {
       type: "String",
     },
+    songs: [{ type: Schema.Types.String, ref: "Song" }]
   },
   {
     timestamps: true,
