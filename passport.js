@@ -21,7 +21,7 @@ passport.use(
     },
    async function (accessToken, refreshToken, profile, done) {
     const {id,displayName:name,emails,provider} = profile;
-      let user = await User.findOne({id} ).exec();
+      let user = await User.findOne({_id:id} ).exec();
      
         if (!user) {
           user = new User({ _id:id,email:emails[0].value, name,});

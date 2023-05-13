@@ -3,8 +3,7 @@ const passport = require("passport");
 const routers = express.Router();
 const dotenv = require("dotenv");
 const authController = require("../controllers/authController");
-const Song = require("../models/Songs");
-const { v4: uuidv4 } = require("uuid");
+const songsController = require("../controllers/songsController");
 dotenv.config();
 
 //******GOOGLE_ROUTES****************************************//
@@ -107,33 +106,7 @@ routers.get("/login/success", authController.loginSuccess);
 
 routers.get("/logout", authController.logout);
 
-routers.post("/songs", async (req, res) => {
-   console.log(req.body); 
-   res.json(req.body);
-  // //console.log(topChart6[0]);
-  // const key = topChart6[0].key;
-  // const data = topChart6[0];
-  // console.log("key", key);
-  // const userID = "726fdafb-a39d-4d7f-a11b-1b71c6f9d0be";
-  // //console.log(data);
- 
-  
-  // try {
-  //    let song = await Song.findOneAndUpdate({ key:'125487' },{
-  //      $addToSet: { users:userID }
-  //     } ).exec();
-  //      console.log(song);
-  //    if (song) return res.json({ OK: "Update successfully Mongodb" });
-  
-  //   song = new Song({ _id: uuidv4(), key,data,users:userID});
-  //   await song.save();
-    
-
-  //   return res.json({ message: "Song Successfully in Mongodb" });
-  // } catch (error) {
-  //   console.log(error);
-  // }
-});
+routers.post("/songs",songsController.userAllSongs);
 
 routers.get("/songs", async (req, res) => {
       console.log(req.body);
