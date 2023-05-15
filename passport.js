@@ -19,21 +19,21 @@ passport.use(
       callbackURL: "/api/v1/auth/google/callback",
       scope: ["profile", "email"],
     },
-   async function (accessToken, refreshToken, profile, done) {
-    const {id,displayName:name,emails,provider} = profile;
-      let user = await User.findOne({_id:id} ).exec();
-     
-        if (!user) {
-          user = new User({ _id:id,email:emails[0].value, name,});
-          await user.save();
-        }
-      
+    async function (accessToken, refreshToken, profile, done) {
+      const { id, displayName: name, emails, provider } = profile;
+      let user = await User.findOne({ _id: id }).exec();
+
+      if (!user) {
+        user = new User({ _id: id, email: emails[0].value, name });
+        await user.save();
+      }
+
       return done(null, {
         token: accessToken,
         socialUser: {
           id,
           name,
-          email:emails[0].value,
+          email: emails[0].value,
           provider,
         },
       });
@@ -49,14 +49,22 @@ passport.use(
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: "/api/v1/auth/github/callback",
     },
-    function (accessToken, refreshToken, profile, done) {
-      // User.findOrCreate({ githubId: profile.id }, function (err, user) {
-      //   return done(err, user);
-      // });
+    async function (accessToken, refreshToken, profile, done) {
+      const { id, username: name, provider } = profile;
+      let user = await User.findOne({ _id: id }).exec();
 
+      if (!user) {
+        user = new User({ _id: id, email:`${name}@github.com`, name });
+        await user.save();
+      }
+      console.log(profile);
       return done(null, {
         token: accessToken,
-        socialUser: { name: profile.username, provider: profile.provider },
+        socialUser: {
+          id,
+          name,
+          provider,
+        },
       });
     }
   )

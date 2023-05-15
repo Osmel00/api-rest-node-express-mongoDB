@@ -108,11 +108,6 @@ routers.get("/logout", authController.logout);
 
 routers.post("/songs",songsController.userAllSongs);
 
-routers.get("/songs", async (req, res) => {
-      console.log(req.body);
-    //  const songs = await Song.find({_id:'152232f8-d0c5-4990-9f3e-ebea82447f78'}).populate("users",{name:true,email:true}).exec();
-      res.json(req.body);
-});
-
+ routers.get("/songs/:id",songsController.getAllSongs)
 
 module.exports = routers;

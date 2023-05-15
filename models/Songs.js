@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { model, Schema } = mongoose;
 
-const songChema = new Schema({
+const songSchema = new Schema({
   _id: {
     type: "String",
   },
@@ -23,4 +23,4 @@ const songChema = new Schema({
 
 );
 
-module.exports = model("Song", songChema);
+module.exports = model("Song", songSchema);

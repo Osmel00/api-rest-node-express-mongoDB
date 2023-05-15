@@ -40,7 +40,7 @@ const login = async (req, res, next) => {
       return res.status(403).json({ Error: "Password is not valid" });
 
     //create Token
-    const body = { email: user.email, name: user.name };
+    const body = { id:user._id,email: user.email, name: user.name };
     const token = jwt.sign({ user: body }, process.env.JWT_PRIVATE_KEY); // { expiresIn: '1h' } si quieres que expire
 
     res
