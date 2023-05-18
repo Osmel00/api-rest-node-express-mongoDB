@@ -13,7 +13,7 @@ const songSchema = new Schema({
     unique: true,
   },
 
-  data: [{}],
+  data:{},
   users: [{ type: Schema.Types.String, ref: "User" }],
 },
 {
