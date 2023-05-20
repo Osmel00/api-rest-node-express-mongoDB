@@ -46,7 +46,8 @@ const login = async (req, res, next) => {
     res
       .cookie("token", token, {
         httpOnly: true,
-        //secure: true//*mode production
+        Secure : true,//*mode production
+        
       })
       .json({
         token: token,

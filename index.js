@@ -22,7 +22,7 @@ app.use(
 );
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://felify-music.vercel.app',
     methods: "GET, POST, PUT, DELETE",
     credentials: true, //*********access-control-allow-credentials:true*****///
   })
