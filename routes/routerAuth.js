@@ -106,9 +106,9 @@ routers.get("/login/success", authController.loginSuccess);
 
 routers.get("/logout", authController.logout);
 
-routers.post("/songs",songsController.userAllSongs);
+routers.post("/songs", songsController.userAllSongs);
 
- routers.get("/songs/:id",songsController.getAllSongs);
- routers.post("/removeSongsLiked",songsController.removeSongsLiked);
+routers.get("/songs/:id", songsController.getAllSongs);
+routers.post("/removeSongsLiked", songsController.removeSongsLiked);
 
 module.exports = routers;

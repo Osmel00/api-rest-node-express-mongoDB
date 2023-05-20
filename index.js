@@ -33,9 +33,7 @@ app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use("/api/v1/auth", authRoutes);
-app.get('/', (req,res) => {
-   res.json({OK:true,message:'Hello World !'})
-})
+
 //***************SERVER + MONGODB*********************************//
 const bootstrap = async () => {
   await mongoose.connect(process.env.MONGODB_URL);
