@@ -113,7 +113,7 @@ const logout = (req, res) => {
     req.session.destroy();
     res.clearCookie("connect.sid"); // clean up!
     res.clearCookie("token");
-
+    res.cookies.set('token', {expires: Date.now()});
     return res.json({ msg: "Logging you out" });
   } else {
     return res.json({ msg: "no user to log out!" });
