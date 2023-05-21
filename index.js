@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const session = require("express-session");
-const cookieParser = require('cookie-parser')
+const cookieParser = require("cookie-parser");
 require("./passport");
 const authRoutes = require("./routes/routerAuth");
 const dotenv = require("dotenv");
@@ -12,17 +12,24 @@ const dotenv = require("dotenv");
 //app.use(express.urlencoded({ extended: false }));
 const PORT = process.env.PORT || 6000;
 dotenv.config();
+
+
+app.set("trust proxy",1);
 app.use(
   session({
     secret: "secretcode",
-    resave:false,
+    resave: false,
     saveUninitialized: false,
-    //cookie: { secure: true }
+    cookie: {
+      secure: true,
+      sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24 * 7, //One week
+    },
   })
 );
 app.use(
   cors({
-    origin: 'https://felify-music.vercel.app',
+    origin: "https://felify-music.vercel.app",
     methods: "GET, POST, PUT, DELETE",
     credentials: true, //*********access-control-allow-credentials:true*****///
   })
