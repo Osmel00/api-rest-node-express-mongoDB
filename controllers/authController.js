@@ -108,23 +108,24 @@ const loginSuccess = (req, res) => {
 
 const logout = (req, res) => {
   if (req.cookies) {
+    if(req.cookies.token){
+      cleanCookies(req.cookies.token)
+    }else{
+      cleanCookies("connect.sid")
+    }
     req.session.destroy();
-    res.clearCookie("connect.sid"); // clean up!
-    // res.cookie("connect.sid", null, { //production https clean up!
-    //   secure: true, 
-    //   sameSite: "none",
-    //   maxAge: 0,
-    // });
-    //res.clearCookie("token"); // clean//modo http
-    res.cookie("token", null, { //production https clean up!
+   // res.clearCookie("connect.sid"); // clean up!
+    
+    
+   function cleanCookies(nameToken) {
+    res.cookie(nameToken, null, { //production https clean up!
       secure: true, 
       sameSite: "none",
       maxAge: 0,
     });
+   }
 
-   
-
-    return res.json({ msg: "Logging you out" });
+    return res.json({ msg: "Logging you out" ,cookies: req.cookies });
   } else {
     return res.json({ msg: "no user to log out!" });
   }
