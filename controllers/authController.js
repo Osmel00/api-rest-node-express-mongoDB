@@ -40,15 +40,14 @@ const login = async (req, res, next) => {
       return res.status(403).json({ Error: "Password is not valid" });
 
     //create Token
-    const body = { id:user._id,email: user.email, name: user.name };
+    const body = { id: user._id, email: user.email, name: user.name };
     const token = jwt.sign({ user: body }, process.env.JWT_PRIVATE_KEY); // { expiresIn: '1h' } si quieres que expire
 
     res
       .cookie("token", token, {
         httpOnly: true,
-        secure : true,//*mode production
+        secure: true, //*mode production
         sameSite: "none",
-        
       })
       .json({
         token: token,
@@ -92,11 +91,10 @@ const signup = async (req, res) => {
   }
 };
 const loginSuccess = (req, res) => {
-  
   if (req.user) {
     res.status(200).json({
       user: {
-        id:req.user.socialUser.id,
+        id: req.user.socialUser.id,
         name: req.user.socialUser.name,
         email: req.user.socialUser.email,
         provider: req.user.socialUser.provider,
@@ -112,8 +110,15 @@ const logout = (req, res) => {
   if (req.cookies) {
     req.session.destroy();
     res.clearCookie("connect.sid"); // clean up!
-    res.clearCookie("token");
-    res.cookies.set('token', {expires: Date.now()});
+    res.clearCookie("token"); // clean//modo http
+    res.cookie("token", null, { //production https clean up!
+      secure: true, 
+      sameSite: "none",
+      maxAge: 0,
+    });
+
+   
+
     return res.json({ msg: "Logging you out" });
   } else {
     return res.json({ msg: "no user to log out!" });
