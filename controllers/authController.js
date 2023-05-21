@@ -110,11 +110,11 @@ const logout = (req, res) => {
   if (req.cookies) {
     req.session.destroy();
     res.clearCookie("connect.sid"); // clean up!
-    res.cookie("connect.sid", null, { //production https clean up!
-      secure: true, 
-      sameSite: "none",
-      maxAge: 0,
-    });
+    // res.cookie("connect.sid", null, { //production https clean up!
+    //   secure: true, 
+    //   sameSite: "none",
+    //   maxAge: 0,
+    // });
     //res.clearCookie("token"); // clean//modo http
     res.cookie("token", null, { //production https clean up!
       secure: true, 
