@@ -109,7 +109,7 @@ const loginSuccess = (req, res) => {
 const logout = (req, res) => {
   if (req.cookies) {
     if(req.cookies.token){
-      cleanCookies(req.cookies.token)
+      cleanCookies("token")
     }else{
       cleanCookies("connect.sid")
     }
